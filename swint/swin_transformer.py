@@ -405,12 +405,16 @@ class PatchEmbed(nn.Module):
     def __init__(self, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
         super().__init__()
         patch_size = to_2tuple(patch_size)
+        patch_size_half = to_2tuple(patch_size // 2)
         self.patch_size = patch_size
 
         self.in_chans = in_chans
         self.embed_dim = embed_dim
 
-        self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
+        self.proj = nn.Sequential(
+                        nn.Conv2d(in_chans, embed_dim // 2, kernel_size= patch_size_half, stride=patch_size // 2),
+                        nn.Conv2d( embed_dim // 2, embed_dim, kernel_size= patch_size_half, stride=patch_size // 2)
+        )                        
         if norm_layer is not None:
             self.norm = norm_layer(embed_dim)
         else:
